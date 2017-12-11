@@ -3,7 +3,8 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[net.mikera/core.matrix "0.61.0"]
+  :dependencies [[clatrix "0.5.0"]
+                 [net.mikera/core.matrix "0.61.0"]
                  [org.clojure/clojure "1.8.0"]
                  [slingshot "0.12.2"]]
   :profiles {:dev {:source-paths ["dev"]
