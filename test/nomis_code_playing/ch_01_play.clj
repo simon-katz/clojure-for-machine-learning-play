@@ -176,7 +176,8 @@
 
 (fact "Clatrix has a shorthand notation for Nx1 matrices"
   (= (-> (cl/matrix [0 1 2])       matrix?-and-type-and-value)
-     (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value))
+     (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value)
+     [true clatrix.core.Matrix [0 1 2]])
   => true)
 
 ;;;; ___________________________________________________________________________
@@ -198,9 +199,8 @@
 ;;;; ___________________________________________________________________________
 ;;;; Dimensionality
 
-;;;; But it seeks that this is always 2. Ah, maybe that's just the
-;;;; implementations you are looking at, and maybe the protocol allows other
-;;;; dimensionality.
+;;;; It seems that this is always 2. Ah, maybe that's just the implementations
+;;;; you are looking at, and maybe the protocol allows other dimensionality.
 
 (fact "About `dimensionality`"
   (= (dimensionality my-matrix)
@@ -214,23 +214,23 @@
 
 (fact "Use `row-count`, not `count`"
 
-  (let [vov [[0 1 2]]]
+  (let [local-vov [[0 1 2]]]
     
     (fact "`count` and `row-count` are the same for ordinary matrices #1"
       (fact "`count`"     (count     my-matrix) => 2)
       (fact "`row-count`" (row-count my-matrix) => 2))
     
     (fact "`count` and `row-count` are the same for ordinary matrices #2"
-      (fact "`count`"     (count     (matrix vov)) => 1)
-      (fact "`row-count`" (row-count (matrix vov)) => 1))
+      (fact "`count`"     (count     (matrix local-vov)) => 1)
+      (fact "`row-count`" (row-count (matrix local-vov)) => 1))
 
     (fact "`count` and `row-count` can be the same for Clatrix matrices"
       (fact "`count`"     (count     my-cl-matrix) => 2)
       (fact "`row-count`" (row-count my-cl-matrix) => 2))
 
     (fact "`count` and `row-count` can be different for Clatrix matrices"
-      (fact "`count`"     (count     (cl/matrix vov)) => 3)
-      (fact "`row-count`" (row-count (cl/matrix vov)) => 1))))
+      (fact "`count`"     (count     (cl/matrix local-vov)) => 3)
+      (fact "`row-count`" (row-count (cl/matrix local-vov)) => 1))))
 
 (fact "`column-count`"
 
