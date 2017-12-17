@@ -141,7 +141,7 @@
 ;;;; Some matrices
 
 (def some-vovs
-  [[0 1 2]
+  [[0 1 2] ; Hah! This is not OK for ordinary matrices - but you didn't find out until you used `column-count`.
    [[0 1 2]]
    ;; FIXME Are the following OK?
    ;;       - I think OK for ordinary matrices (although the doc string for
@@ -227,25 +227,17 @@
 
   (fact "`column-count`"
 
-    (fact (column-count (first some-matrices))
-      => (throws #"Number has zero dimensionality, cannot get count for dimension: 0"))
+    (fact "Ordinary matrices"
 
-    (fact 
-      (map column-count
-           (rest some-matrices))
-      => [3 1 1]))
+      (fact "The ordinary matrix created from [0 1 2] is invalid!"
+        (column-count (first some-matrices))
+        => (throws #"Number has zero dimensionality, cannot get count for dimension: 0"))
 
-  (fact "clarix"
+      (fact "The other ordinary matrices are OK"
+        (map column-count
+             (rest some-matrices))
+        => [3 1 1]))
 
-    (fact "`count` and `row-count`"
-      (map (juxt count row-count)
-           some-cl-matrices)
-      => [[3 3]
-          [3 1] ; huh?
-          ])
-
-    (fact "`column-count`"
-
-      (fact 
-        (map column-count some-cl-matrices)
-        => [1 3]))))
+    (fact "Clarix"
+      (map column-count some-cl-matrices)
+      => [1 3])))
