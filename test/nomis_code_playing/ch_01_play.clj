@@ -94,39 +94,46 @@
 ;;;; ___________________________________________________________________________
 ;;;; Can have other implementations (clatrix here)
 
-;; You should note that matrices are treated as mutable objects
-;; by the clatrix library.
+;; Note that matrices are treated as mutable objects by the clatrix library.
 
 (fact "`cl/matrix` converts to reals"
-  (cl/matrix [[0 1 2] [3 4 5]])
+  (cl/matrix my-vov)
   => [[0.0 1.0 2.0]
       [3.0 4.0 5.0]])
 
 (fact "specifying implementations"
 
-  (fact
-    (= (matrix :persistent-vector
-               my-vov)
-       (matrix my-vov))
-    => truthy)
+  (fact "`:persistent-vector` is the default"
+    (= (-> (matrix my-vov)                    matrix?-and-type-and-value)
+       (-> (matrix :persistent-vector my-vov) matrix?-and-type-and-value))
+    => true)
 
-  (fact
-    (= (matrix my-vov)
-       (cl/matrix my-vov))
-    => falsey)
+  (fact "`:clatrix` gives a clatrix matrix"
+    (= (-> (cl/matrix my-vov)       matrix?-and-type-and-value)
+       (-> (matrix :clatrix my-vov) matrix?-and-type-and-value))
+    => true))
 
-  (fact
-    (= (matrix :clatrix my-vov)
-       (cl/matrix my-vov))
-    => truthy))
+(fact "`matrix?` and `cl/matrix?`"
 
-(fact "`matrix?` and `cl/matrix`"
-  (map (juxt matrix?
-             cl/matrix?)
-       [(matrix my-vov)
-        (cl/matrix my-vov)])
-  => [[true false]
-      [true true]])
+  (fact "the obvious"
+    
+    (fact "`matrix?` recognises ordinary matrices (as you would expect)"
+      (matrix? (matrix my-vov))
+      => true)
+
+    (fact "`cl-matrix?` recognises clatrix matrices (as you would expect)"
+      (cl/matrix? (cl/matrix my-vov))
+      => true))
+
+  (fact "more interesting"
+    
+    (fact "`matrix?` recognises clatrix matrices"
+      (matrix? (cl/matrix my-vov))
+      => true)
+
+    (fact "`cl-matrix?` does not recognise ordinary matrices"
+      (cl/matrix? (matrix my-vov))
+      => false)))
 
 ;;;; ___________________________________________________________________________
 ;;;; Dimensionality
