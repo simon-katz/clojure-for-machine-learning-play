@@ -182,23 +182,17 @@
 ;;;; ___________________________________________________________________________
 ;;;; Some matrices
 
-(def some-vovs
-  [my-vov])
+(def my-matrix (matrix my-vov))
 
-(def some-matrices
-  (map matrix some-vovs))
-
-(def some-cl-matrices
-  (map cl/matrix
-       (take 2 some-vovs)))
+(def my-cl-matrix (cl/matrix my-vov))
 
 ;;;; ___________________________________________________________________________
 ;;;; Shape
 
 (fact "About `shape`"
-  (= (map shape some-matrices)
-     (map shape some-cl-matrices)
-     [[2 3]])
+  (= (shape my-matrix)
+     (shape my-cl-matrix)
+     [2 3])
   => true)
 
 ;;;; ___________________________________________________________________________
@@ -209,9 +203,9 @@
 ;;;; dimensionality.
 
 (fact "About `dimensionality`"
-  (= (map dimensionality some-matrices)
-     (map dimensionality some-cl-matrices)
-     [2])
+  (= (dimensionality my-matrix)
+     (dimensionality my-cl-matrix)
+     2)
   =>
   true)
 
@@ -223,16 +217,16 @@
   (let [vov [[0 1 2]]]
     
     (fact "`count` and `row-count` are the same for ordinary matrices #1"
-      (fact "`count`"     (map count     some-matrices) => [2])
-      (fact "`row-count`" (map row-count some-matrices) => [2]))
+      (fact "`count`"     (count     my-matrix) => 2)
+      (fact "`row-count`" (row-count my-matrix) => 2))
     
     (fact "`count` and `row-count` are the same for ordinary matrices #2"
       (fact "`count`"     (count     (matrix vov)) => 1)
       (fact "`row-count`" (row-count (matrix vov)) => 1))
 
     (fact "`count` and `row-count` can be the same for Clatrix matrices"
-      (fact "`count`"     (map count     some-cl-matrices) => [2])
-      (fact "`row-count`" (map row-count some-cl-matrices) => [2]))
+      (fact "`count`"     (count     my-cl-matrix) => 2)
+      (fact "`row-count`" (row-count my-cl-matrix) => 2))
 
     (fact "`count` and `row-count` can be different for Clatrix matrices"
       (fact "`count`"     (count     (cl/matrix vov)) => 3)
@@ -241,9 +235,9 @@
 (fact "`column-count`"
 
   (fact "Ordinary matrices"
-    (map column-count some-matrices)
-    => [3])
+    (column-count my-matrix)
+    => 3)
 
   (fact "Clarix"
-    (map column-count some-cl-matrices)
-    => [3]))
+    (column-count my-cl-matrix)
+    => 3))
