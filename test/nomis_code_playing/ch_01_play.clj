@@ -165,21 +165,25 @@
     (fact "Seems OK: `shape`"          (shape m)          => [1 1 1])
     (fact "Seems OK: `dimensionality`" (dimensionality m) => 3)
     
-    (fact "Not OK: `matrix?`"          (matrix? m) => false)))
+    (fact "Not OK: `matrix?`"          (matrix? m) => false)
+
+    (fact "Clatrix is better at giving errors"
+      (cl/matrix m)
+      => (throws #"PersistentVector cannot be cast to java.lang.Number"))))
+
+;;;; ___________________________________________________________________________
+;;;; Clatrix shorthand
+
+(fact "Clatrix has a shorthand notation for Nx1 matrices"
+  (= (-> (cl/matrix [0 1 2])       matrix?-and-type-and-value)
+     (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value))
+  => true)
 
 ;;;; ___________________________________________________________________________
 ;;;; Some matrices
 
 (def some-vovs
-  [[0 1 2] ; Hah! This is not OK for ordinary matrices - but you didn't find out until you used `column-count`.
-   [[0 1 2]]
-   ;; FIXME Are the following OK?
-   ;;       - I think OK for ordinary matrices (although the doc string for
-   ;;         `matrix` says "2-dimensional", it also says "works as a synonym
-   ;;         for `array`", which does n-dimensional).
-   ;;       - Not OK for Clatrix.
-   [[[0 1 2]]]
-   [[[[[[[[[[[[0 1 2]]]]]]]]]]]]])
+  [[[0 1 2]]])
 
 (def some-matrices
   (map matrix some-vovs))
@@ -188,53 +192,28 @@
   (map cl/matrix
        (take 2 some-vovs)))
 
-(fact "Clatrix is only 2D"
-  (cl/matrix (nth some-vovs 2))
-  => (throws #"PersistentVector cannot be cast to java.lang.Number")
-  (cl/matrix (nth some-vovs 3))
-  => (throws #"PersistentVector cannot be cast to java.lang.Number"))
-
-(fact "Clatrix has a shorthand notation for Nx1 matrices"
-  (= (-> (cl/matrix [0 1 2])       matrix?-and-type-and-value)
-     (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value))
-  => true)
-
 ;;;; ___________________________________________________________________________
 ;;;; Shape
 
 (fact "About `shape`"
-
-  (fact "Shape of ordinary matrices is as you would expect"
-    (map shape some-matrices)
-    => [[3] [1 3] [1 1 3] [1 1 1 1 1 1 1 1 1 1 1 3]])
-
-  (fact "Shape of Clatrix matrices is different"
-    (fact "Only 2D is supported"
-      (map shape some-cl-matrices)
-      => [[3 1] [1 3]])
-    (fact "In particular"
-      (= (shape (first some-matrices))
-         (shape (first some-cl-matrices)))
-      => false)))
+  (= (map shape some-matrices)
+     (map shape some-cl-matrices)
+     [[1 3]])
+  => true)
 
 ;;;; ___________________________________________________________________________
 ;;;; Dimensionality
 
+;;;; But it seeks that this is always 2. Ah, maybe that's just the
+;;;; implementations you are looking at, and maybe the protocol allows other
+;;;; dimensionality.
+
 (fact "About `dimensionality`"
-
-  (fact "Dimensionality of ordinary matrices is as you would expect"
-    (map dimensionality some-matrices)
-    =>
-    [1 2 3 12])
-
-  (fact "Dimensionality of Clatrix matrices is different"
-    (fact "Only 2D is supported"
-      (map dimensionality some-cl-matrices)
-      => [2 2])
-    (fact "In particular"
-      (= (dimensionality (first some-matrices))
-         (dimensionality (first some-cl-matrices)))
-      => false)))
+  (= (map dimensionality some-matrices)
+     (map dimensionality some-cl-matrices)
+     [2])
+  =>
+  true)
 
 ;;;; ___________________________________________________________________________
 ;;;; Counts
@@ -242,24 +221,19 @@
 (fact "Use `row-count`, not `count`"
   
   (fact "`count` and `row-count` are the same for ordinary matrices"
-    (fact "`count`"     (map count     some-matrices) => [3 1 1 1])
-    (fact "`row-count`" (map row-count some-matrices) => [3 1 1 1]))
+    (fact "`count`"     (map count     some-matrices) => [1])
+    (fact "`row-count`" (map row-count some-matrices) => [1]))
 
   (fact "`count` and `row-count` are different for Clatrix matrices"
-    (fact "`count`"     (map count     some-cl-matrices) => [3 3])
-    (fact "`row-count`" (map row-count some-cl-matrices) => [3 1])))
+    (fact "`count`"     (map count     some-cl-matrices) => [3])
+    (fact "`row-count`" (map row-count some-cl-matrices) => [1])))
 
-(fact "counts"
+(fact "`column-count`"
 
-  (fact "`column-count`"
+  (fact "Ordinary matrices"
+    (map column-count some-matrices)
+    => [3])
 
-    (fact "Ordinary matrices"
-
-      (fact "The other ordinary matrices are OK"
-        (map column-count
-             (rest some-matrices))
-        => [3 1 1]))
-
-    (fact "Clarix"
-      (map column-count some-cl-matrices)
-      => [1 3])))
+  (fact "Clarix"
+    (map column-count some-cl-matrices)
+    => [3]))
