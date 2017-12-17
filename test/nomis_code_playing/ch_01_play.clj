@@ -92,9 +92,11 @@
     => false))
 
 ;;;; ___________________________________________________________________________
-;;;; Can have other implementations (clatrix here)
+;;;; Can have other implementations (Clatrix here)
 
-;; Note that matrices are treated as mutable objects by the clatrix library.
+;;;; Note that matrices are treated as mutable objects by the Clatrix library.
+
+;;;; Is Clatrix abandonware? No activity in 2.5 years.
 
 (fact "`cl/matrix` converts to reals"
   (cl/matrix my-vov)
@@ -108,7 +110,7 @@
        (-> (matrix :persistent-vector my-vov) matrix?-and-type-and-value))
     => true)
 
-  (fact "`:clatrix` gives a clatrix matrix"
+  (fact "`:clatrix` gives a Clatrix matrix"
     (= (-> (cl/matrix my-vov)       matrix?-and-type-and-value)
        (-> (matrix :clatrix my-vov) matrix?-and-type-and-value))
     => true))
@@ -121,13 +123,13 @@
       (matrix? (matrix my-vov))
       => true)
 
-    (fact "`cl-matrix?` recognises clatrix matrices (as you would expect)"
+    (fact "`cl-matrix?` recognises Clatrix matrices (as you would expect)"
       (cl/matrix? (cl/matrix my-vov))
       => true))
 
   (fact "more interesting"
     
-    (fact "`matrix?` recognises clatrix matrices"
+    (fact "`matrix?` recognises Clatrix matrices"
       (matrix? (cl/matrix my-vov))
       => true)
 
@@ -139,28 +141,41 @@
 ;;;; Dimensionality
 
 (def some-matrices
-  [(matrix [0 1])
-   (matrix [[0 1]])
-   ;; FIXME I suspect the following might be invalid.
-   (matrix [[[0 1]]])
-   (matrix [[[[[[[[[[[[0 1]]]]]]]]]]]])])
+  [(matrix [0 1 2])
+   (matrix [[0 1 2]])
+   ;; FIXME Are the following might valid? (Ah, although the doc string for
+   ;;       `matrix` says "2-dimensional", it also says "works as a synonym for
+   ;;       `array`", which does n-dimensional.)
+   (matrix [[[0 1 2]]])
+   (matrix [[[[[[[[[[[[0 1 2]]]]]]]]]]]])])
 
 (def some-cl-matrices
-  [(cl/matrix [0 1])
-   (cl/matrix [[0 1]])])
+  [(cl/matrix [0 1 2])
+   (cl/matrix [[0 1 2]])])
 
-(fact "Shorthand notation for Nx1 matrices"
-  (= (cl/matrix [0 1])
-     (cl/matrix [[0] [1]]))
-  => truthy)
+(fact "Clatrix is only 2D"
+  (cl/matrix [[[0 1 2]]])
+  => (throws #"PersistentVector cannot be cast to java.lang.Number")
+  (cl/matrix [[[[[[[[[[[[0 1 2]]]]]]]]]]]])
+  => (throws #"PersistentVector cannot be cast to java.lang.Number"))
 
-(fact "what dimension matrices are supported?"
+(fact "Clatrix has a shorthand notation for Nx1 matrices"
+  (= (-> (cl/matrix [0 1 2])       matrix?-and-type-and-value)
+     (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value))
+  => truthy
+  (fact "but not for ordinary matrices"
+    (= (matrix [0 1 2])
+       (matrix [[0] [1] [2]]))
+    => false))
 
-  (fact (map dimensionality some-matrices)
+(fact "What dimensionality matrices are supported?"
+
+  (fact "Ordinary matrices can have any dimensionality"
+    (map dimensionality some-matrices)
     =>
     [1 2 3 12])
 
-  (fact "clatrix dimensionality is different -- seems that only 2D is supported"
+  (fact "Clatrix dimensionality is different -- seems that only 2D is supported"
 
     (fact (map dimensionality some-cl-matrices)
       =>
@@ -169,13 +184,7 @@
     (fact "Sheesh!"
       (= (dimensionality (first some-matrices))
          (dimensionality (first some-cl-matrices)))
-      => falsey)
-
-    (fact (cl/matrix [[[0 1]]])
-      => (throws #"PersistentVector cannot be cast to java.lang.Number"))
-
-    (fact (cl/matrix [[[[[[[[[[[[0 1]]]]]]]]]]]])
-      => (throws #"PersistentVector cannot be cast to java.lang.Number"))))
+      => falsey)))
 
 ;;;; ___________________________________________________________________________
 ;;;; Shape
@@ -183,12 +192,12 @@
 (fact "shape"
 
   (map shape some-matrices)
-  => [[2] [1 2] [1 1 2] [1 1 1 1 1 1 1 1 1 1 1 2]]
+  => [[3] [1 3] [1 1 3] [1 1 1 1 1 1 1 1 1 1 1 3]]
 
-  (fact "clatrix shape is different -- seems that only 2D is supported"
+  (fact "Clatrix shape is different -- seems that only 2D is supported"
 
     (fact (map shape some-cl-matrices)
-      => [[2 1] [1 2]])
+      => [[3 1] [1 3]])
 
     (fact "Sheesh!"
       (= (shape (first some-matrices))
@@ -203,7 +212,7 @@
   (fact "`count` and `row-count`"
     (map (juxt count row-count)
          some-matrices)
-    => [[2 2]
+    => [[3 3]
         [1 1]
         [1 1]
         [1 1]])
@@ -216,19 +225,19 @@
     (fact 
       (map column-count
            (rest some-matrices))
-      => [2 1 1]))
+      => [3 1 1]))
 
   (fact "clarix"
 
     (fact "`count` and `row-count`"
       (map (juxt count row-count)
            some-cl-matrices)
-      => [[2 2]
-          [2 1] ; huh?
+      => [[3 3]
+          [3 1] ; huh?
           ])
 
     (fact "`column-count`"
 
       (fact 
         (map column-count some-cl-matrices)
-        => [1 2]))))
+        => [1 3]))))
