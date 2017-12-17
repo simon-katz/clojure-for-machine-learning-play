@@ -138,6 +138,36 @@
       => false)))
 
 ;;;; ___________________________________________________________________________
+;;;; Be careful #1
+
+(fact "`[0 1 2]` may seem to be OK as a matrix, but it isn't"
+
+  (let [m (matrix [0 1 2])]
+    
+    (fact "Seems OK: `row-count`"      (row-count m)      => 3)
+    (fact "Seems OK: `shape`"          (shape m)          => [3])
+    (fact "Seems OK: `dimensionality`" (dimensionality m) => 1)
+
+    (fact "Not OK: `matrix?`"          (matrix? m) => false)
+    (fact "Not OK: `column-count`"     (column-count m)
+      => (throws
+          #"Number has zero dimensionality, cannot get count for dimension: 0"))))
+
+;;;; ___________________________________________________________________________
+;;;; Be careful #2
+
+(fact "`[[[1]]]` may seem to be OK as a matrix, but it isn't"
+
+  (let [m (matrix [[[1]]])]
+
+    (fact "Seems OK: `row-count`"      (row-count m)      => 1) 
+    (fact "Seems OK: `column-count`"   (column-count m)   => 1)
+    (fact "Seems OK: `shape`"          (shape m)          => [1 1 1])
+    (fact "Seems OK: `dimensionality`" (dimensionality m) => 3)
+    
+    (fact "Not OK: `matrix?`"          (matrix? m) => false)))
+
+;;;; ___________________________________________________________________________
 ;;;; Some matrices
 
 (def some-vovs
@@ -167,15 +197,7 @@
 (fact "Clatrix has a shorthand notation for Nx1 matrices"
   (= (-> (cl/matrix [0 1 2])       matrix?-and-type-and-value)
      (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value))
-  => true
-  (fact "and that is different to ordinary matrices"
-    (fact "Seems OK"
-      (= (matrix [0 1 2])
-         (matrix [[0] [1] [2]]))
-      => false
-      (fact "but it is not"
-        (column-count (matrix [0 1 2]))
-        => (throws #"Number has zero dimensionality, cannot get count for dimension: 0")))))
+  => true)
 
 ;;;; ___________________________________________________________________________
 ;;;; Shape
