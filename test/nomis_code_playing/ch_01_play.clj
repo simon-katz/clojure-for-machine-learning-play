@@ -66,7 +66,7 @@
   (fact "`matrix` Leaves vectors untouched"
     (= (-> my-vov          matrix?-and-type-and-value)
        (-> (matrix my-vov) matrix?-and-type-and-value))
-    => truthy)
+    => true)
 
   (fact "`pm` pretty prints matrices"
     (with-out-str
@@ -167,7 +167,7 @@
 (fact "Clatrix has a shorthand notation for Nx1 matrices"
   (= (-> (cl/matrix [0 1 2])       matrix?-and-type-and-value)
      (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value))
-  => truthy
+  => true
   (fact "and that is different to ordinary matrices"
     (= (matrix [0 1 2])
        (matrix [[0] [1] [2]]))
@@ -176,54 +176,54 @@
 ;;;; ___________________________________________________________________________
 ;;;; Shape
 
-(fact "shape"
+(fact "About `shape`"
 
-  (map shape some-matrices)
-  => [[3] [1 3] [1 1 3] [1 1 1 1 1 1 1 1 1 1 1 3]]
+  (fact "Shape of ordinary matrices is as you would expect"
+    (map shape some-matrices)
+    => [[3] [1 3] [1 1 3] [1 1 1 1 1 1 1 1 1 1 1 3]])
 
-  (fact "Clatrix shape is different -- seems that only 2D is supported"
-
-    (fact (map shape some-cl-matrices)
+  (fact "Shape of Clatrix matrices is different"
+    (fact "Only 2D is supported"
+      (map shape some-cl-matrices)
       => [[3 1] [1 3]])
-
-    (fact "Sheesh!"
+    (fact "In particular"
       (= (shape (first some-matrices))
          (shape (first some-cl-matrices)))
-      => falsey)))
+      => false)))
 
 ;;;; ___________________________________________________________________________
 ;;;; Dimensionality
 
-(fact "What dimensionality matrices are supported?"
+(fact "About `dimensionality`"
 
-  (fact "Ordinary matrices can have any dimensionality"
+  (fact "Dimensionality of ordinary matrices is as you would expect"
     (map dimensionality some-matrices)
     =>
     [1 2 3 12])
 
-  (fact "Clatrix dimensionality is different -- seems that only 2D is supported"
-
-    (fact (map dimensionality some-cl-matrices)
-      =>
-      [2 2])
-
-    (fact "Sheesh!"
+  (fact "Dimensionality of Clatrix matrices is different"
+    (fact "Only 2D is supported"
+      (map dimensionality some-cl-matrices)
+      => [2 2])
+    (fact "In particular"
       (= (dimensionality (first some-matrices))
          (dimensionality (first some-cl-matrices)))
-      => falsey)))
+      => false)))
 
 ;;;; ___________________________________________________________________________
 ;;;; Counts
 
-(fact "counts"
+(fact "Use `row-count`, not `count`"
+  
+  (fact "`count` and `row-count` are the same for ordinary matrices"
+    (fact "`count`"     (map count     some-matrices) => [3 1 1 1])
+    (fact "`row-count`" (map row-count some-matrices) => [3 1 1 1]))
 
-  (fact "`count` and `row-count`"
-    (map (juxt count row-count)
-         some-matrices)
-    => [[3 3]
-        [1 1]
-        [1 1]
-        [1 1]])
+  (fact "`count` and `row-count` are different for Clatrix matrices"
+    (fact "`count`"     (map count     some-cl-matrices) => [3 3])
+    (fact "`row-count`" (map row-count some-cl-matrices) => [3 1])))
+
+(fact "counts"
 
   (fact "`column-count`"
 
