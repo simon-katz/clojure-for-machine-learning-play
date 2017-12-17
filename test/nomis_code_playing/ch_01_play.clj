@@ -76,21 +76,6 @@
  [3 4 5]]
 "))
 
-(fact "More about `matrix?`"
-
-  (fact (matrix? [])
-    => false)
-
-  (fact (matrix? [[]])
-    => true)
-
-  (fact (matrix? [[[1 2 3]]])
-    => false)
-
-  (fact "WTF?"
-    (matrix? (matrix [[[1 2 3]]]))
-    => false))
-
 ;;;; ___________________________________________________________________________
 ;;;; Can have other implementations (Clatrix here)
 
@@ -133,7 +118,7 @@
       (matrix? (cl/matrix my-vov))
       => true)
 
-    (fact "`cl-matrix?` does not recognise ordinary matrices"
+    (fact "`cl/matrix?` does not recognise ordinary matrices"
       (cl/matrix? (matrix my-vov))
       => false)))
 
