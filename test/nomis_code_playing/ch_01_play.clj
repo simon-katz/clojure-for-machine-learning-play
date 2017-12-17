@@ -5,41 +5,84 @@
             [clojure.string :as str]))
 
 ;;;; ___________________________________________________________________________
-;;;; Basics
 
-(fact (matrix [[0 1 2]
-               [3 4 5]])
-  => [[0 1 2]
-      [3 4 5]])
+(defn matrix?-and-type-and-value [x]
+  [(matrix? x)
+   (type x)
+   x])
 
-(fact (matrix '((0 1 2)
-                (3 4 5)))
-  => [[0 1 2]
-      [3 4 5]])
+;;;; ___________________________________________________________________________
+;;;; A list of lists
 
-(fact (with-out-str
-        (pm (matrix [[0 1 2]
-                     [3 4 5]])))
-  => 
-  "[[0 1 2]
+(def my-lol '((0 1 2)
+              (3 4 5)))
+
+(fact "About `my-lol`"
+  (-> my-lol
+      matrix?-and-type-and-value)
+  =>[true
+     clojure.lang.PersistentList
+     my-lol])
+
+;;;; ___________________________________________________________________________
+;;;; A vector of vectors
+
+(def my-vov [[0 1 2]
+             [3 4 5]])
+
+(fact "About `my-vov`"
+  (-> my-vov
+      matrix?-and-type-and-value)
+  =>[true
+     clojure.lang.PersistentVector
+     my-vov])
+
+;;;; ___________________________________________________________________________
+;;;; Matrix basics
+
+(fact "About `matrix` and `matrix?`"
+
+  (fact "Lists are regarded as matrices"
+    (matrix? my-lol)
+    => true)
+
+  (fact "Vectors are regarded as matrices"
+    (matrix? my-vov)
+    => true)
+  
+  (fact "`matrix` turns lists into vectors"
+    (-> (matrix my-lol)
+        type)
+    => clojure.lang.PersistentVector)
+
+  (fact "`matrix?-and-type-and-value` returns the three things mentioned"
+    (-> my-lol
+        matrix?-and-type-and-value)
+    => [true
+        clojure.lang.PersistentList
+        '((0 1 2)
+          (3 4 5))])
+  
+  (fact "`matrix` Leaves vectors untouched"
+    (= (-> my-vov          matrix?-and-type-and-value)
+       (-> (matrix my-vov) matrix?-and-type-and-value))
+    => truthy)
+
+  (fact "`pm` pretty prints matrices"
+    (with-out-str
+      (pm (matrix my-vov)))
+    => 
+    "[[0 1 2]
  [3 4 5]]
-")
+"))
 
-(fact "About `matrix?`"
-
-  (fact (matrix? (matrix [[0 1 2]
-                          [3 4 5]]))
-    => true)
-
-  (fact (matrix? [[0 1 2]
-                  [3 4 5]])
-    => true)
-
-  (fact (matrix? [[]])
-    => true)
+(fact "More about `matrix?`"
 
   (fact (matrix? [])
     => false)
+
+  (fact (matrix? [[]])
+    => true)
 
   (fact (matrix? [[[1 2 3]]])
     => false)
@@ -63,33 +106,25 @@
 
   (fact
     (= (matrix :persistent-vector
-               [[0 1 2]
-                [3 4 5]])
-       (matrix [[0 1 2]
-                [3 4 5]]))
+               my-vov)
+       (matrix my-vov))
     => truthy)
 
   (fact
-    (= (matrix [[0 1 2]
-                [3 4 5]])
-       (cl/matrix [[0 1 2]
-                   [3 4 5]]))
+    (= (matrix my-vov)
+       (cl/matrix my-vov))
     => falsey)
 
   (fact
-    (= (matrix :clatrix [[0 1 2]
-                         [3 4 5]])
-       (cl/matrix [[0 1 2]
-                   [3 4 5]]))
+    (= (matrix :clatrix my-vov)
+       (cl/matrix my-vov))
     => truthy))
 
 (fact "`matrix?` and `cl/matrix`"
   (map (juxt matrix?
              cl/matrix?)
-       [(matrix [[0 1 2]
-                 [3 4 5]])
-        (cl/matrix [[0 1 2]
-                    [3 4 5]])])
+       [(matrix my-vov)
+        (cl/matrix my-vov)])
   => [[true false]
       [true true]])
 
