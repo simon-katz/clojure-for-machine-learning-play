@@ -20,9 +20,9 @@
 (fact "About `my-lol`"
   (-> my-lol
       matrix?-and-type-and-value)
-  =>[true
-     clojure.lang.PersistentList
-     my-lol])
+  => [true
+      clojure.lang.PersistentList
+      my-lol])
 
 ;;;; ___________________________________________________________________________
 ;;;; A vector of vectors
@@ -33,9 +33,9 @@
 (fact "About `my-vov`"
   (-> my-vov
       matrix?-and-type-and-value)
-  =>[true
-     clojure.lang.PersistentVector
-     my-vov])
+  => [true
+      clojure.lang.PersistentVector
+      my-vov])
 
 ;;;; ___________________________________________________________________________
 ;;;; Matrix basics
@@ -169,9 +169,13 @@
      (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value))
   => true
   (fact "and that is different to ordinary matrices"
-    (= (matrix [0 1 2])
-       (matrix [[0] [1] [2]]))
-    => false))
+    (fact "Seems OK"
+      (= (matrix [0 1 2])
+         (matrix [[0] [1] [2]]))
+      => false
+      (fact "but it is not"
+        (column-count (matrix [0 1 2]))
+        => (throws #"Number has zero dimensionality, cannot get count for dimension: 0")))))
 
 ;;;; ___________________________________________________________________________
 ;;;; Shape
@@ -228,10 +232,6 @@
   (fact "`column-count`"
 
     (fact "Ordinary matrices"
-
-      (fact "The ordinary matrix created from [0 1 2] is invalid!"
-        (column-count (first some-matrices))
-        => (throws #"Number has zero dimensionality, cannot get count for dimension: 0"))
 
       (fact "The other ordinary matrices are OK"
         (map column-count
