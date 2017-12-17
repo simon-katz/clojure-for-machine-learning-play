@@ -138,7 +138,7 @@
       => false)))
 
 ;;;; ___________________________________________________________________________
-;;;; Dimensionality
+;;;; Some matrices
 
 (def some-vovs
   [[0 1 2]
@@ -173,24 +173,6 @@
        (matrix [[0] [1] [2]]))
     => false))
 
-(fact "What dimensionality matrices are supported?"
-
-  (fact "Ordinary matrices can have any dimensionality"
-    (map dimensionality some-matrices)
-    =>
-    [1 2 3 12])
-
-  (fact "Clatrix dimensionality is different -- seems that only 2D is supported"
-
-    (fact (map dimensionality some-cl-matrices)
-      =>
-      [2 2])
-
-    (fact "Sheesh!"
-      (= (dimensionality (first some-matrices))
-         (dimensionality (first some-cl-matrices)))
-      => falsey)))
-
 ;;;; ___________________________________________________________________________
 ;;;; Shape
 
@@ -207,6 +189,27 @@
     (fact "Sheesh!"
       (= (shape (first some-matrices))
          (shape (first some-cl-matrices)))
+      => falsey)))
+
+;;;; ___________________________________________________________________________
+;;;; Dimensionality
+
+(fact "What dimensionality matrices are supported?"
+
+  (fact "Ordinary matrices can have any dimensionality"
+    (map dimensionality some-matrices)
+    =>
+    [1 2 3 12])
+
+  (fact "Clatrix dimensionality is different -- seems that only 2D is supported"
+
+    (fact (map dimensionality some-cl-matrices)
+      =>
+      [2 2])
+
+    (fact "Sheesh!"
+      (= (dimensionality (first some-matrices))
+         (dimensionality (first some-cl-matrices)))
       => falsey)))
 
 ;;;; ___________________________________________________________________________
