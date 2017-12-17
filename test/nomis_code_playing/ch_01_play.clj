@@ -140,30 +140,35 @@
 ;;;; ___________________________________________________________________________
 ;;;; Dimensionality
 
+(def some-vovs
+  [[0 1 2]
+   [[0 1 2]]
+   ;; FIXME Are the following OK?
+   ;;       - I think OK for ordinary matrices (although the doc string for
+   ;;         `matrix` says "2-dimensional", it also says "works as a synonym
+   ;;         for `array`", which does n-dimensional).
+   ;;       - Not OK for Clatrix.
+   [[[0 1 2]]]
+   [[[[[[[[[[[[0 1 2]]]]]]]]]]]]])
+
 (def some-matrices
-  [(matrix [0 1 2])
-   (matrix [[0 1 2]])
-   ;; FIXME Are the following might valid? (Ah, although the doc string for
-   ;;       `matrix` says "2-dimensional", it also says "works as a synonym for
-   ;;       `array`", which does n-dimensional.)
-   (matrix [[[0 1 2]]])
-   (matrix [[[[[[[[[[[[0 1 2]]]]]]]]]]]])])
+  (map matrix some-vovs))
 
 (def some-cl-matrices
-  [(cl/matrix [0 1 2])
-   (cl/matrix [[0 1 2]])])
+  (map cl/matrix
+       (take 2 some-vovs)))
 
 (fact "Clatrix is only 2D"
-  (cl/matrix [[[0 1 2]]])
+  (cl/matrix (nth some-vovs 2))
   => (throws #"PersistentVector cannot be cast to java.lang.Number")
-  (cl/matrix [[[[[[[[[[[[0 1 2]]]]]]]]]]]])
+  (cl/matrix (nth some-vovs 3))
   => (throws #"PersistentVector cannot be cast to java.lang.Number"))
 
 (fact "Clatrix has a shorthand notation for Nx1 matrices"
   (= (-> (cl/matrix [0 1 2])       matrix?-and-type-and-value)
      (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value))
   => truthy
-  (fact "but not for ordinary matrices"
+  (fact "and that is different to ordinary matrices"
     (= (matrix [0 1 2])
        (matrix [[0] [1] [2]]))
     => false))
