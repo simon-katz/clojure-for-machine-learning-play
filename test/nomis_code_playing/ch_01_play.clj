@@ -183,7 +183,7 @@
 ;;;; Some matrices
 
 (def some-vovs
-  [[[0 1 2]]])
+  [my-vov])
 
 (def some-matrices
   (map matrix some-vovs))
@@ -198,7 +198,7 @@
 (fact "About `shape`"
   (= (map shape some-matrices)
      (map shape some-cl-matrices)
-     [[1 3]])
+     [[2 3]])
   => true)
 
 ;;;; ___________________________________________________________________________
@@ -219,14 +219,24 @@
 ;;;; Counts
 
 (fact "Use `row-count`, not `count`"
-  
-  (fact "`count` and `row-count` are the same for ordinary matrices"
-    (fact "`count`"     (map count     some-matrices) => [1])
-    (fact "`row-count`" (map row-count some-matrices) => [1]))
 
-  (fact "`count` and `row-count` are different for Clatrix matrices"
-    (fact "`count`"     (map count     some-cl-matrices) => [3])
-    (fact "`row-count`" (map row-count some-cl-matrices) => [1])))
+  (let [vov [[0 1 2]]]
+    
+    (fact "`count` and `row-count` are the same for ordinary matrices #1"
+      (fact "`count`"     (map count     some-matrices) => [2])
+      (fact "`row-count`" (map row-count some-matrices) => [2]))
+    
+    (fact "`count` and `row-count` are the same for ordinary matrices #2"
+      (fact "`count`"     (count     (matrix vov)) => 1)
+      (fact "`row-count`" (row-count (matrix vov)) => 1))
+
+    (fact "`count` and `row-count` can be the same for Clatrix matrices"
+      (fact "`count`"     (map count     some-cl-matrices) => [2])
+      (fact "`row-count`" (map row-count some-cl-matrices) => [2]))
+
+    (fact "`count` and `row-count` can be different for Clatrix matrices"
+      (fact "`count`"     (count     (cl/matrix vov)) => 3)
+      (fact "`row-count`" (row-count (cl/matrix vov)) => 1))))
 
 (fact "`column-count`"
 
