@@ -236,3 +236,46 @@
   (fact "Clarix"
     (column-count my-cl-matrix)
     => 3))
+
+;;;; ___________________________________________________________________________
+;;;; Getting and setting
+
+;;;; FIXME What about accessors for ordinary matrices? Do they exist?
+;;;;       Ah, you can use `get-in` I guess. But you want something in the
+;;;;       matrix protocol, so you can switch implementations with ease.
+
+(fact "About `cl/get`"
+  (let [m (cl/matrix [[0 1 2]
+                      [3 4 5]])]
+
+    (fact "with two indices"
+      (cl/get m 1 1) => 4.0)
+    
+    (fact "with one index, should be row-first but isn't this column-first?"
+      (for [i (range 6)]
+        (cl/get m i))
+      => [0.0 3.0 1.0 4.0 2.0 5.0])))
+
+(fact "About `cl/set`"
+
+  (fact "with two indices"
+    (let [m (cl/matrix [[0 1 2]
+                        [3 4 5]])]
+      (cl/set m 1 1 10))
+    => (cl/matrix [[0 1  2]
+                   [3 10 5]]))
+
+  (fact "with one indices"
+    (let [m (cl/matrix [[0 1 2]
+                        [3 4 5]])]
+      (cl/set m 1 10))
+    => (cl/matrix [[0  1  2]
+                   [10 4 5]])))
+
+(fact "Clarix matrices are mutable"
+  (let [m (cl/matrix [[0 1 2]
+                      [3 4 5]])]
+    (cl/set m 1 10)
+    m)
+  => (cl/matrix [[0  1  2]
+                 [10 4 5]]))
