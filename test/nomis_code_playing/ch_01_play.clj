@@ -446,3 +446,21 @@
 
 ;;;; There is also `cl/rnorm`, which produces random matrices using a normal
 ;;;; distribution.
+
+;;;; ___________________________________________________________________________
+;;;; `compute-matrix`
+
+(defn id-computed-mat
+  "Creates an identity matrix of size n x n using `compute-matrix`."
+  [n]
+  (compute-matrix [n n]
+                  #(if (= %1 %2) 1 0)))
+
+(defn rand-computed-mat
+  "Creates an n x m matrix of random elements using `compute-matrix`."
+  [n m]
+  (compute-matrix [n m]
+                  (fn [_ _] (rand-int 100))))
+
+;;;; (id-computed-mat 3)
+;;;; (rand-computed-mat 2 3)
