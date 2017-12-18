@@ -272,10 +272,79 @@
     => (cl/matrix [[0  1  2]
                    [10 4 5]])))
 
-(fact "Clarix matrices are mutable"
+(fact "`cl/set` mutates"
   (let [m (cl/matrix [[0 1 2]
                       [3 4 5]])]
     (cl/set m 1 10)
     m)
   => (cl/matrix [[0  1  2]
                  [10 4 5]]))
+
+;;;; ___________________________________________________________________________
+;;;; `cl/map` and `cl/map-indexed`
+
+(fact "`cl/map`"
+  (let [m (cl/matrix [[0 1 2]
+                      [3 4 5]])]
+    (cl/map inc m))
+  => (cl/matrix [[1 2 3]
+                 [4 5 6]]))
+
+(fact "`cl/map-indexed`"
+  (let [m (cl/matrix [[  0 100 200]
+                      [300 400 500]])]
+    (cl/map-indexed (fn [i j x]
+                      (+ x i j))
+                    m))
+  => (cl/matrix [[  0 101 202]
+                 [301 402 503]]))
+
+(fact "`cl/map` does not mutate (unlike `cl/set`)"
+  (let [m (cl/matrix [[0 1 2]
+                      [3 4 5]])]
+    (cl/map inc m)
+    m)
+  => (cl/matrix [[0 1 2]
+                 [3 4 5]]))
+
+;;;; ___________________________________________________________________________
+;;;; `square-mat`
+
+(defn square-mat
+  "Creates a square matrix of size n x n whose elements are all e.
+  Accepts an optional argument for the matrix implementation."
+  [n e & {:keys [implementation]
+          :or {implementation :persistent-vector}}]
+  (let [repeater #(repeat n %)]
+    (matrix implementation (-> e repeater repeater))))
+
+(fact "About `square-mat`"
+
+  (fact "With `:implementation` unspecified"
+    (square-mat 2 1)
+    => (matrix [[1 1]
+                [1 1]]))
+
+  (fact "With `:implementation` specified"
+    (square-mat 2 1 :implementation :clatrix)
+    => (cl/matrix [[1 1]
+                   [1 1]])))
+
+;;;; ___________________________________________________________________________
+;;;; `identity-matrix`
+
+(fact "About `identity-matrix`"
+  
+  (fact "With implementation unspecified -- not it comverts to reals"
+    (-> (identity-matrix 2) matrix?-and-type-and-value)
+    => [true
+        clojure.lang.PersistentVector
+        [[1.0 0.0]
+         [0.0 1.0]]])
+  
+  (fact "With implementation specified"
+    (-> (identity-matrix :clatrix 2) matrix?-and-type-and-value)
+    => [true
+        clatrix.core.Matrix
+        (matrix [[1.0 0.0]
+                 [0.0 1.0]])]))
