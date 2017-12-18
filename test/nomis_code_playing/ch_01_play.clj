@@ -1,5 +1,6 @@
 (ns nomis-code-playing.ch-01-play
   (:require [clojure.core.matrix :refer :all]
+            [clojure.core.matrix.operators :as M]
             [midje.sweet :refer :all]
             [clatrix.core :as cl]
             [clojure.string :as str]))
@@ -464,3 +465,22 @@
 
 ;;;; (id-computed-mat 3)
 ;;;; (rand-computed-mat 2 3)
+
+;;;; ___________________________________________________________________________
+;;;; M/==
+;;;; M/+
+
+(fact "About `M/=`"
+  (let [a (matrix [[0 1 2] [3 4 5]])
+        b (matrix [[0 0 0] [0 0 0]])
+        c (matrix [[0 1 2] [3 4 5]])]
+    (M/== a b) => false
+    (M/== a c) => true
+    (M/== a b c) => false))
+
+(fact "About `M/+`"
+  (let [a (matrix [[1 1 1] [1 1 1]])
+        b (matrix [[2 2 2] [2 2 2]])
+        c (matrix [[3 3 3] [3 3 3]])
+        d (matrix [[6 6 6] [6 6 6]])]
+    (M/+ a b c) => d))
