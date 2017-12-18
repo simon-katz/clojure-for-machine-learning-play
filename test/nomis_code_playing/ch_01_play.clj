@@ -92,12 +92,20 @@
 
   (fact "`:persistent-vector` is the default"
     (= (-> (matrix my-vov)                    matrix?-and-type-and-value)
-       (-> (matrix :persistent-vector my-vov) matrix?-and-type-and-value))
+       (-> (matrix :persistent-vector my-vov) matrix?-and-type-and-value)
+       [true
+        clojure.lang.PersistentVector
+        [[0 1 2]
+         [3 4 5]]])
     => true)
 
   (fact "`:clatrix` gives a Clatrix matrix"
     (= (-> (cl/matrix my-vov)       matrix?-and-type-and-value)
-       (-> (matrix :clatrix my-vov) matrix?-and-type-and-value))
+       (-> (matrix :clatrix my-vov) matrix?-and-type-and-value)
+       [true
+        clatrix.core.Matrix
+        [[0 1 2]
+         [3 4 5]]])
     => true))
 
 (fact "`matrix?` and `cl/matrix?`"
@@ -162,7 +170,9 @@
 (fact "Clatrix has a shorthand notation for Nx1 matrices"
   (= (-> (cl/matrix [0 1 2])       matrix?-and-type-and-value)
      (-> (cl/matrix [[0] [1] [2]]) matrix?-and-type-and-value)
-     [true clatrix.core.Matrix [0 1 2]])
+     [true
+      clatrix.core.Matrix
+      [0 1 2]])
   => true)
 
 ;;;; ___________________________________________________________________________
