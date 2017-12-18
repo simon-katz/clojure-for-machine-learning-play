@@ -410,3 +410,39 @@
       [0 1 0]
       [0 0 1]])
   => true)
+
+;;;; ___________________________________________________________________________
+;;;; Random matrices
+
+(defn rand-square-mat-FROM-BOOK ; :example-of-code-i-can-improve:
+  "Generates a random matrix of size n x n"
+  [n]
+  (matrix
+   (repeatedly n #(map rand-int (repeat n 100)))))
+
+(defn rand-square-mat ; :sk-improved-version:
+  "Generates a random matrix of size n x n"
+  [n]
+  (letfn [(row [] (repeatedly n #(rand-int 100)))]
+    (-> (repeatedly n row)
+        matrix)))
+
+(defn rand-square-clmat
+  "Generates a random clatrix matrix of size n x n"
+  [n]
+  (cl/map rand-int (square-mat n 100 :implementation :clatrix)))
+
+;;;; eg
+;;;;
+;;;; (rand-square-mat 3)
+;;;; => [[48 25 13]
+;;;;     [76 24 33]
+;;;;     [41 94 65]]
+;;;;
+;;;; (pm (rand-square-clmat 3))
+;;;; [[ 8.000 69.000 92.000]
+;;;;  [88.000 98.000 99.000]
+;;;;  [80.000 72.000 15.000]]
+
+;;;; There is also `cl/rnorm`, which produces random matrices using a normal
+;;;; distribution.
