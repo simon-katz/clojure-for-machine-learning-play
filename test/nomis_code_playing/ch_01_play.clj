@@ -176,6 +176,36 @@
   => true)
 
 ;;;; ___________________________________________________________________________
+;;;; Clatrix fiddles with definition of equality
+
+(fact "Clatrix fiddles with definiton of equality"
+
+  (let [int-vov [[0 1 2]
+                 [3 4 5]]
+        real-vov [[0.0 1.0 2.0]
+                  [3.0 4.0 5.0]]
+        matrix-from-ints (cl/matrix int-vov)]
+
+    (fact "Background info part 1"
+      int-vov =not=> real-vov)
+
+    (fact "Background info part 2"
+      (= int-vov real-vov) => falsey)
+
+    (fact "Using Midge equality testing, all as expected (given that Clatrix converts to reals"
+      (fact "Reals: equal"    matrix-from-ints =>     real-vov)
+      (fact "Ints: not equal" matrix-from-ints =not=> int-vov))
+
+    (fact "Using Clojure equality testing"
+      (fact "Reals: equal"          (= matrix-from-ints real-vov) => true)
+      (fact "Ints: equality fiddle" (= matrix-from-ints int-vov)  => true))
+
+    ;; It seems we can deduce two interesting things:
+    ;; - Clatrix fiddles with equality (and normal Clojure sees the fiddling).
+    ;; - Midje implements its own idea of equality.
+    ))
+
+;;;; ___________________________________________________________________________
 ;;;; Some matrices
 
 (def my-matrix (matrix my-vov))
@@ -233,7 +263,7 @@
     (column-count my-matrix)
     => 3)
 
-  (fact "Clarix"
+  (fact "Clatrix"
     (column-count my-cl-matrix)
     => 3))
 
@@ -310,13 +340,23 @@
 ;;;; ___________________________________________________________________________
 ;;;; `square-mat`
 
-(defn square-mat
+(defn square-mat-FROM-BOOK ; :example-of-code-i-can-improve:
   "Creates a square matrix of size n x n whose elements are all e.
   Accepts an optional argument for the matrix implementation."
   [n e & {:keys [implementation]
           :or {implementation :persistent-vector}}]
   (let [repeater #(repeat n %)]
     (matrix implementation (-> e repeater repeater))))
+
+(defn square-mat ; :sk-improved-version:
+  "Creates a square matrix of size n x n whose elements are all e.
+  Accepts an optional argument for the matrix implementation."
+  [n e & {:keys [implementation]
+          :or {implementation :persistent-vector}}]
+  (->> e
+       (repeat n)
+       (repeat n)
+       (matrix implementation)))
 
 (fact "About `square-mat`"
 
@@ -335,7 +375,7 @@
 
 (fact "About `identity-matrix`"
   
-  (fact "With implementation unspecified -- not it comverts to reals"
+  (fact "With implementation unspecified -- not it converts to reals"
     (-> (identity-matrix 2) matrix?-and-type-and-value)
     => [true
         clojure.lang.PersistentVector
@@ -348,3 +388,25 @@
         clatrix.core.Matrix
         (matrix [[1.0 0.0]
                  [0.0 1.0]])]))
+
+(defn id-mat-FROM-BOOK ; :example-of-code-i-can-improve:
+  "Creates an identity matrix of n x n size"
+  [n]
+  (let [init (square-mat n 0 :implementation :clatrix)
+        identity-f (fn [i j n]
+                     (if (= i j) 1 n))]
+    (cl/map-indexed identity-f init)))
+
+(defn id-mat ; :sk-improved-version:
+  "Creates an identity matrix of n x n size"
+  [n]
+  (cl/map-indexed (fn [i j _] (if (= i j) 1 0))
+                  (square-mat n 0 :implementation :clatrix)))
+
+(fact "About `id-mat`"
+  (= (id-mat 3)
+     (id-mat-FROM-BOOK 3)
+     [[1 0 0]
+      [0 1 0]
+      [0 0 1]])
+  => true)
