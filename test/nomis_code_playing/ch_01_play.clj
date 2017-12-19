@@ -8,15 +8,20 @@
 ;;;; ___________________________________________________________________________
 
 ;;;; FIXME Things I am unclear about:
-;;;; - Operations: duplication between eg `equals` and `M/=`" and `add`.
+
+;;;; - Operations: duplication between eg `equals` & `M/=`" and `add` & `M/+`.
 ;;;;   But not identical. What are the two layers for? (What happene in each?)
+
 ;;;; - Doc for `matrix` says "2-dimensional matrix", but there is mention of
 ;;;;   n-dimensional in places (doc and code I think).
+
 ;;;; - Doc for `matrix` says: `matrix works` as a synonym for `array`, which
 ;;;;   creates n-dimensional arrays.
 ;;;;   Is an array an n-dimensional matrix?
+
 ;;;; - There are vectors too distinct from 1xN or Nx1 matrices.
 ;;;;   See https://github.com/mikera/core.matrix/wiki/Vectors-vs.-matrices
+
 ;;;; - Is there rhyme and reason to naming? (`add` vs `mmul`.)
 ;;;;   Oh, there is `mul` too.
 
@@ -482,9 +487,9 @@
 ;;;; (rand-computed-mat 2 3)
 
 ;;;; ___________________________________________________________________________
-;;;; `equals` and `M/==`
+;;;; `equals` & `M/==`
 
-(fact "About `equals` and `M/=`"
+(fact "About `equals` & `M/=`"
   (let [a1 (matrix [[0 1 2] [3 4 5]])
         a2 (matrix [[0 1 2] [3 4 5]])
         a3 (matrix [[0 1 2] [3 4 5]])
@@ -502,9 +507,9 @@
       (M/== a1 a2 a3 a4 b) => false)))
 
 ;;;; ___________________________________________________________________________
-;;;; `add` and `M/+`
+;;;; `add` & `M/+`
 
-(fact "`add` and `M/+` both add element-wise or broadcasting a scalar"
+(fact "`add` & `M/+` both add element-wise or broadcasting a scalar"
   (let [a     (matrix [[1 2 3]
                        [4 5 6]])
         b     (matrix [[10 10 10]
@@ -527,9 +532,9 @@
           (fact "scalars"                (op n1 n2) => n1+n2))))))
 
 ;;;; ___________________________________________________________________________
-;;;; `mul` and `M/*`
+;;;; `mul` & `M/*`
 
-(fact "`mul` and `M/*` both multiply element-wise or broadcasting a scalar"
+(fact "`mul` & `M/*` both multiply element-wise or broadcasting a scalar"
   (let [a     (matrix [[1 2 3]
                        [4 5 6]])
         b     (matrix [[-1 -2 -3]
