@@ -66,9 +66,13 @@
     (matrix? my-lol)
     => true)
 
-  (fact "Vectors are regarded as matrices"
+  (fact "Vectors of vectors are regarded as matrices"
     (matrix? my-vov)
     => true)
+
+  (fact "Vectors are not regarded as matrices" ; FIXME You haven't got much about vectors -- it's been a bit random
+    (matrix? [1 2 3])
+    => false)
   
   (fact "`matrix` turns lists into vectors"
     (-> (matrix my-lol)
@@ -618,3 +622,23 @@
 
 ;; (do (clatrix-mul-time) nil)
 ;; "Elapsed time: 0.107426 msecs"
+
+;;;; ___________________________________________________________________________
+;;;; `transpose`
+
+(fact "About `transpose`"
+  (let [n  2
+        v  [1 2 3]
+        m  [[1 2 3]
+            [4 5 6]]
+        m' [[1 4]
+            [2 5]
+            [3 6]]
+        m2  [[1 2 3]]
+        m2' [[1]
+             [2]
+             [3]]]
+    (fact "Leaves scalars unchanged" (transpose n) => n)
+    (fact "Leaves vectors unchanged" (transpose v) => v) ; FIXME You haven't got much about vectors -- it's been a bit random
+    (fact "Transposes matrices #1"   (transpose m) => m')
+    (fact "Transposes matrices #2"   (transpose m2) => m2')))
