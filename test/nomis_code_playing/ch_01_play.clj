@@ -12,6 +12,8 @@
 ;;;; - Operations: duplication between eg `equals` & `M/=`" and `add` & `M/+`.
 ;;;;   But not identical. What are the two layers for? (What happene in each?)
 
+;;;; - Is there an `M/xxxx` version of `mmul`?
+
 ;;;; - Doc for `matrix` says "2-dimensional matrix", but there is mention of
 ;;;;   n-dimensional in places (doc and code I think).
 
