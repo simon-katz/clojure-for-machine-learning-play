@@ -22,9 +22,6 @@
 ;;;; - There are vectors too distinct from 1xN or Nx1 matrices.
 ;;;;   See https://github.com/mikera/core.matrix/wiki/Vectors-vs.-matrices
 
-;;;; - Is there rhyme and reason to naming? (`add` vs `mmul`.)
-;;;;   Oh, there is `mul` too.
-
 ;;;; ___________________________________________________________________________
 
 (defn matrix?-and-type-and-value [x]
