@@ -504,36 +504,55 @@
 ;;;; ___________________________________________________________________________
 ;;;; `add` and `M/+`
 
-(fact "About `add` and `M/+` (note they are equivalent)"
-  (let [a     (matrix [[1 1 1] [1 1 1]])
-        b     (matrix [[2 2 2] [2 2 2]])
-        c     (matrix [[3 3 3] [3 3 3]])
-        d     (matrix [[6 6 6] [6 6 6]])
-        a+100 [[101 101 101] [101 101 101]]]
-    (doseq [op [add M/+]]
-      [op (op a b c)]   => [op d]
-      [op (op 100 a)]   => [op a+100]
-      [op (op a 100)]   => [op a+100]
-      [op (op 100 200)] => [op 300])))
+(fact "`add` and `M/+` both add element-wise or broadcasting a scalar"
+  (let [a     (matrix [[1 2 3]
+                       [4 5 6]])
+        b     (matrix [[10 10 10]
+                       [10 10 10]])
+        c     (matrix [[100 100 100]
+                       [100 100 100]])
+        a+b+c (matrix [[111 112 113]
+                       [114 115 116]])
+        n1    1000
+        n2    2000
+        a+n1  [[1001 1002 1003]
+               [1004 1005 1006]]
+        n1+n2 3000]
+    (doseq [op ['add 'M/+]]
+      (fact {:midje/description op}
+        (let [op (resolve op)]
+          (fact "matrices"               (op a b c) => a+b+c)
+          (fact "broadcasting scalar #1" (op n1 a)  => a+n1)
+          (fact "broadcasting scalar #2" (op a n1)  => a+n1)
+          (fact "scalars"                (op n1 n2) => n1+n2))))))
 
 ;;;; ___________________________________________________________________________
-;;;; `mmul` and `M/*`
+;;;; `mul` and `M/*`
 
-(fact "About `M/* (element-wise, or scalars)"
-  (let [a (matrix [[1 2 3]
-                   [4 5 6]])
-        b (matrix [[2 2 2]
-                   [2 2 2]])
-        n 10]
-    (M/* a b) => [[2  4  6]
-                  [8 10 12]]
-    (M/* a n) => [[10 20 30]
-                  [40 50 60]]
-    (M/* n a) => [[10 20 30]
-                  [40 50 60]]
-    (M/* n n) => 100))
+(fact "About `mul` and `M/*` both multiply element-wise or broadcasting a scalar"
+  (let [a     (matrix [[1 2 3]
+                       [4 5 6]])
+        b     (matrix [[-1 -2 -3]
+                       [-4 -5 -6]])
+        a*b   (matrix [[ -1  -4  -9]
+                       [-16 -25 -36]])
+        n1    1000
+        n2    2000
+        a*n1  (matrix [[1000 2000 3000]
+                       [4000 5000 6000]])
+        n1*n2 2000000]
+    (doseq [op ['mul 'M/*]]
+      (fact {:midje/description op}
+        (let [op (resolve op)]
+          (fact "matrices"               (op a b)   => a*b)
+          (fact "broadcasting scalar #1" (op a n1)  => a*n1)
+          (fact "broadcasting scalar #2" (op n1 a)  => a*n1)
+          (fact "scalars"                (op n1 n2) => n1*n2))))))
 
-(fact "About `mmul (matrix multiplication)"
+;;;; ___________________________________________________________________________
+;;;; `mmul`
+
+(fact "About `mmul` (matrix multiplication)"
   (let [a (matrix [[1 2 3]
                    [4 5 6]])
         b (matrix [[10 20]
