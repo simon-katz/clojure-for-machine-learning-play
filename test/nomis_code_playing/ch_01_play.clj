@@ -577,3 +577,44 @@
     (fact "broadcasting scalar #1" (mmul a n1)  => a*n1)
     (fact "broadcasting scalar #2" (mmul n1 a)  => a*n1)
     (fact "scalars"                (mmul n1 n2) => n1*n2)))
+
+;;;; ___________________________________________________________________________
+;;;; `scale`
+
+(fact "About `scale`"
+  (let [m      (matrix [[1 2 3]
+                        [4 5 6]])
+        m*1000 (matrix [[1000 2000 3000]
+                        [4000 5000 6000]])
+        m*m*10 (matrix [[ 10  40  90]
+                        [160 250 360]])]
+    (fact "What the doc string says"
+      (scale m 10 100) => m*1000)
+    (fact "Also"
+      (scale 1 m 10 m) => m*m*10)
+    (fact "So you might expect that this is OK, but it isn't"
+      (scale m 10 m) => throws)))
+
+;;;; ___________________________________________________________________________
+;;;; A performance comparison
+
+(defn time-mat-mul
+  "Measures the time for multiplication of two matrices A and B"
+  [A B]
+  (time (M/* A B)))
+
+(defn core-matrix-mul-time []
+  (let [A (rand-square-mat 100)
+        B (rand-square-mat 100)]
+    (time-mat-mul A B)))
+
+(defn clatrix-mul-time []
+  (let [A (rand-square-clmat 100)
+        B (rand-square-clmat 100)]
+    (time-mat-mul A B)))
+
+;; (do (core-matrix-mul-time) nil)
+;; "Elapsed time: 4.113151 msecs"
+
+;; (do (clatrix-mul-time) nil)
+;; "Elapsed time: 0.107426 msecs"
