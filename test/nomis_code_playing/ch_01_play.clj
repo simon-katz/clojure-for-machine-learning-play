@@ -538,8 +538,10 @@
                        [4 5 6]])
         b     (matrix [[-1 -2 -3]
                        [-4 -5 -6]])
-        a*b   (matrix [[ -1  -4  -9]
-                       [-16 -25 -36]])
+        c     (matrix [[100 100 100]
+                       [100 100 100]])
+        a*b*c (matrix [[ -100  -400  -900]
+                       [-1600 -2500 -3600]])
         n1    1000
         n2    2000
         a*n1  (matrix [[1000 2000 3000]
@@ -548,7 +550,7 @@
     (doseq [op ['mul 'M/*]]
       (fact {:midje/description op}
         (let [op (resolve op)]
-          (fact "matrices"               (op a b)   => a*b)
+          (fact "matrices"               (op a b c) => a*b*c)
           (fact "broadcasting scalar #1" (op a n1)  => a*n1)
           (fact "broadcasting scalar #2" (op n1 a)  => a*n1)
           (fact "scalars"                (op n1 n2) => n1*n2))))))
@@ -557,19 +559,21 @@
 ;;;; `mmul`
 
 (fact "`mmul` does matrix multiplication and broadcasts scalars"
-  (let [a   (matrix [[1 2 3]
-                     [4 5 6]])
-        b   (matrix [[10 20]
-                     [20 30]
-                     [30 40]])
-        a*b (matrix [[140.0 200.0]
-                     [320.0 470.0]])
+  (let [a     (matrix [[1 2 3]
+                       [4 5 6]])
+        b     (matrix [[10 20]
+                       [20 30]
+                       [30 40]])
+        c     (matrix [[10  0]
+                       [ 0 10]])
+        a*b*c (matrix [[1400.0 2000.0]
+                       [3200.0 4700.0]])
         n1    1000
         n2    2000
         a*n1  (matrix [[1000 2000 3000]
                        [4000 5000 6000]])
         n1*n2 2000000]
-    (fact "matrices"               (mmul a b)   => a*b)
+    (fact "matrices"               (mmul a b c) => a*b*c)
     (fact "broadcasting scalar #1" (mmul a n1)  => a*n1)
     (fact "broadcasting scalar #2" (mmul n1 a)  => a*n1)
     (fact "scalars"                (mmul n1 n2) => n1*n2)))
