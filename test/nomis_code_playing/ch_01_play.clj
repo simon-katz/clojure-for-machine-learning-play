@@ -642,3 +642,29 @@
     (fact "Leaves vectors unchanged" (transpose v) => v) ; FIXME You haven't got much about vectors -- it's been a bit random
     (fact "Transposes matrices #1"   (transpose m) => m')
     (fact "Transposes matrices #2"   (transpose m2) => m2')))
+
+;;;; ___________________________________________________________________________
+;;;; `inverse`
+
+(fact "About `inverse`"
+  (fact "Non-singular"
+    (let [m (cl/matrix [[1 2]
+                        [3 4]])]
+      (M/== (mmul m
+                  (inverse m))
+            (identity-matrix 2))
+      => true))
+  (fact "Singular"
+    (let [m (cl/matrix [[2 2]
+                        [1 1]])]
+      (inverse m)
+      => (throws #"singular"))))
+
+;;;; ___________________________________________________________________________
+;;;; `det`
+
+(fact "About `det`"
+  (let [m (cl/matrix [[1 2]
+                      [3 4]])]
+    (det m)
+    => -2.0))
