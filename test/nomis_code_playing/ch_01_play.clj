@@ -7,6 +7,21 @@
 
 ;;;; ___________________________________________________________________________
 
+;;;; FIXME Things I am unclear about:
+;;;; - Operations: duplication between eg `equals` and `M/=`" and `add`.
+;;;;   But not identical. What are the two layers for? (What happene in each?)
+;;;; - Doc for `matrix` says "2-dimensional matrix", but there is mention of
+;;;;   n-dimensional in places (doc and code I think).
+;;;; - Doc for `matrix` says: `matrix works` as a synonym for `array`, which
+;;;;   creates n-dimensional arrays.
+;;;;   Is an array an n-dimensional matrix?
+;;;; - There are vectors too distinct from 1xN or Nx1 matrices.
+;;;;   See https://github.com/mikera/core.matrix/wiki/Vectors-vs.-matrices
+;;;; - Is there rhyme and reason to naming? (`add` vs `mmul`.)
+;;;;   Oh, there is `mul` too.
+
+;;;; ___________________________________________________________________________
+
 (defn matrix?-and-type-and-value [x]
   [(matrix? x)
    (type x)
@@ -467,35 +482,42 @@
 ;;;; (rand-computed-mat 2 3)
 
 ;;;; ___________________________________________________________________________
-;;;; M/==
-;;;; M/+
-;;;; mmul
-;;;; M/*
+;;;; `equals` and `M/==`
 
-(fact "About `M/=`"
-  (let [a (matrix [[0 1 2] [3 4 5]])
-        b (matrix [[0 0 0] [0 0 0]])
-        c (matrix [[0 1 2] [3 4 5]])]
-    (M/== a b) => false
-    (M/== a c) => true
-    (M/== a b c) => false))
+(fact "About `equals` and `M/=`"
+  (let [a1 (matrix [[0 1 2] [3 4 5]])
+        a2 (matrix [[0 1 2] [3 4 5]])
+        a3 (matrix [[0 1 2] [3 4 5]])
+        a4 (matrix [[0 1 2] [3 4 5]])
+        b  (matrix [[0 0 0] [0 0 0]])]
+    (fact "`equals` checks equality of one or two matrices, and, for two matrices, an epsilon can be supplied"
+      (equals a1)       => true
+      (equals a1 a2)    => true
+      (equals a1 b)     => false
+      (equals a1 b 100) => true)
+    (fact "`M/==` checks equality of any number of matrices"
+      (M/==)               => true
+      (M/== a1)            => true
+      (M/== a1 a2 a3 a4)   => true
+      (M/== a1 a2 a3 a4 b) => false)))
 
-(fact "About `M/+`"
-  (let [a (matrix [[1 1 1] [1 1 1]])
-        b (matrix [[2 2 2] [2 2 2]])
-        c (matrix [[3 3 3] [3 3 3]])
-        d (matrix [[6 6 6] [6 6 6]])]
-    (M/+ a b c) => d))
+;;;; ___________________________________________________________________________
+;;;; `add` and `M/+`
 
-(fact "About `mmul (matrix multiplication)"
-  (let [a (matrix [[1 2 3]
-                   [4 5 6]])
-        b (matrix [[10 20]
-                   [20 30]
-                   [30 40]])]
-    (mmul a b)
-    => [[140.0 200.0]
-        [320.0 470.0]]))
+(fact "About `add` and `M/+` (note they are equivalent)"
+  (let [a     (matrix [[1 1 1] [1 1 1]])
+        b     (matrix [[2 2 2] [2 2 2]])
+        c     (matrix [[3 3 3] [3 3 3]])
+        d     (matrix [[6 6 6] [6 6 6]])
+        a+100 [[101 101 101] [101 101 101]]]
+    (doseq [op [add M/+]]
+      [op (op a b c)]   => [op d]
+      [op (op 100 a)]   => [op a+100]
+      [op (op a 100)]   => [op a+100]
+      [op (op 100 200)] => [op 300])))
+
+;;;; ___________________________________________________________________________
+;;;; `mmul` and `M/*`
 
 (fact "About `M/* (element-wise, or scalars)"
   (let [a (matrix [[1 2 3]
@@ -510,3 +532,13 @@
     (M/* n a) => [[10 20 30]
                   [40 50 60]]
     (M/* n n) => 100))
+
+(fact "About `mmul (matrix multiplication)"
+  (let [a (matrix [[1 2 3]
+                   [4 5 6]])
+        b (matrix [[10 20]
+                   [20 30]
+                   [30 40]])]
+    (mmul a b)
+    => [[140.0 200.0]
+        [320.0 470.0]]))
