@@ -529,7 +529,7 @@
 ;;;; ___________________________________________________________________________
 ;;;; `mul` and `M/*`
 
-(fact "About `mul` and `M/*` both multiply element-wise or broadcasting a scalar"
+(fact "`mul` and `M/*` both multiply element-wise or broadcasting a scalar"
   (let [a     (matrix [[1 2 3]
                        [4 5 6]])
         b     (matrix [[-1 -2 -3]
@@ -552,12 +552,20 @@
 ;;;; ___________________________________________________________________________
 ;;;; `mmul`
 
-(fact "About `mmul` (matrix multiplication)"
-  (let [a (matrix [[1 2 3]
-                   [4 5 6]])
-        b (matrix [[10 20]
-                   [20 30]
-                   [30 40]])]
-    (mmul a b)
-    => [[140.0 200.0]
-        [320.0 470.0]]))
+(fact "`mmul` does matrix multiplication and broadcasts scalars"
+  (let [a   (matrix [[1 2 3]
+                     [4 5 6]])
+        b   (matrix [[10 20]
+                     [20 30]
+                     [30 40]])
+        a*b (matrix [[140.0 200.0]
+                     [320.0 470.0]])
+        n1    1000
+        n2    2000
+        a*n1  (matrix [[1000 2000 3000]
+                       [4000 5000 6000]])
+        n1*n2 2000000]
+    (fact "matrices"               (mmul a b)   => a*b)
+    (fact "broadcasting scalar #1" (mmul a n1)  => a*n1)
+    (fact "broadcasting scalar #2" (mmul n1 a)  => a*n1)
+    (fact "scalars"                (mmul n1 n2) => n1*n2)))
