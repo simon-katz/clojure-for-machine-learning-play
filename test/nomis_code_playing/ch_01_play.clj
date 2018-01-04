@@ -736,4 +736,16 @@
 (defn plot-rand-sample []
   (plot-points (solve (problem 150 10 30))))
 
+(fact "About `problem`"
+  (problem 5 2 10)
+  =>
+  (just {:L [[-10.0 20.0 -10.0 0.0 0.0 0.0 0.0]
+             [0.0 -10.0 20.0 -10.0 0.0 0.0 0.0]
+             [0.0 0.0 -10.0 20.0 -10.0 0.0 0.0]
+             [0.0 0.0 0.0 -10.0 20.0 -10.0 0.0]
+             [0.0 0.0 0.0 0.0 -10.0 20.0 -10.0]]
+         :observed (just (repeat 2 integer?))
+         :hidden (just (repeat 3 integer?))
+         :observed-values (just (repeat 2 number?))}))
+
 ;;;; (plot-rand-sample)
