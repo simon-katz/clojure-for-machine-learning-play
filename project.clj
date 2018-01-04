@@ -4,6 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[clatrix "0.5.0"]
+                 [incanter "1.5.7"]
                  [net.mikera/core.matrix "0.61.0"]
                  [org.clojure/clojure "1.8.0"]
                  [slingshot "0.12.2"]]
