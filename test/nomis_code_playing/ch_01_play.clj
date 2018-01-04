@@ -691,14 +691,9 @@
                       2 -1
                       0))))
 
-(fact "About `lmatrix`"
-  (lmatrix 4)
-  => (matrix [[-1.0  2.0 -1.0  0.0  0.0  0.0]
-              [ 0.0 -1.0  2.0 -1.0  0.0  0.0]
-              [ 0.0  0.0 -1.0  2.0 -1.0  0.0]
-              [ 0.0  0.0  0.0 -1.0  2.0 -1.0]]))
+;;;; This stuff was horrible in the book. I've changed a lot.
 
-(defn problem
+(defn make-problem
   "Return a map of the problem setup for a
   given matrix size, number of observed values
   and regularization parameter"
@@ -734,10 +729,21 @@
       (xy-plot X Y) (:observed s) (:observed-values s)))))
 
 (defn plot-rand-sample []
-  (plot-points (solve (problem 150 10 30))))
+  (plot-points (solve (make-problem 150 10 30))))
 
-(fact "About `problem`"
-  (problem 5 2 10)
+;;;; (plot-rand-sample)
+
+;;;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+(fact "About `lmatrix`"
+  (lmatrix 4)
+  => (matrix [[-1.0  2.0 -1.0  0.0  0.0  0.0]
+              [ 0.0 -1.0  2.0 -1.0  0.0  0.0]
+              [ 0.0  0.0 -1.0  2.0 -1.0  0.0]
+              [ 0.0  0.0  0.0 -1.0  2.0 -1.0]]))
+
+(fact "About `make-problem`"
+  (make-problem 5 2 10)
   =>
   (just {:L [[-10.0 20.0 -10.0 0.0 0.0 0.0 0.0]
              [0.0 -10.0 20.0 -10.0 0.0 0.0 0.0]
@@ -747,5 +753,3 @@
          :observed (just (repeat 2 integer?))
          :hidden (just (repeat 3 integer?))
          :observed-values (just (repeat 2 number?))}))
-
-;;;; (plot-rand-sample)
