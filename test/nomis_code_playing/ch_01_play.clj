@@ -674,12 +674,22 @@
 ;;;; ___________________________________________________________________________
 ;;;; Example: Tichonov regularization -- Interpolating using matrices
 
-(defn lmatrix [n]
+(defn lmatrix-FROM-BOOK [n] ; :example-of-code-i-can-improve:
   (compute-matrix :clatrix [n (+ n 2)]
                   (fn [i j]
                     ({0 -1, 1 2, 2 -1}
                      (- j i)
                      0))))
+
+(defn lmatrix [n] ; :sk-improved-version:
+  (compute-matrix :clatrix
+                  [n (+ n 2)]
+                  (fn [i j]
+                    (case (- j i)
+                      0 -1
+                      1  2
+                      2 -1
+                      0))))
 
 (fact "About `lmatrix`"
   (lmatrix 4)
