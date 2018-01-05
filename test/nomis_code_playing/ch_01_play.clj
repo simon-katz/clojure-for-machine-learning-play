@@ -5,6 +5,7 @@
             [incanter.core :refer [view]] ; FIXME Get rid of refers
             [midje.sweet :refer :all]
             [clatrix.core :as cl]
+            [clojure.set :as set]
             [clojure.string :as str]))
 
 ;;;; ___________________________________________________________________________
@@ -694,17 +695,21 @@
 ;;;; This stuff was horrible in the book. I've changed a lot.
 
 (defn make-problem
-  "Return a map of the problem setup for a
-  given matrix size, number of observed values
-  and regularization parameter"
-  [n-xs n-observed lambda]
-  (assert (< n-observed n-xs))
-  (let [i (shuffle (range n-xs))]
-    {:L           (mmul (lmatrix n-xs) lambda)
-     :observed-xs (take n-observed i)
-     :hidden-xs   (drop n-observed i)
-     :observed-ys (matrix :clatrix
-                          (repeatedly n-observed rand))}))
+  "Return a problem setup for the given args."
+  [observed-xs hidden-xs observed-ys lambda]
+  (let [n-xs (+ (count observed-xs)
+                (count hidden-xs))]
+    (assert (= (set/union (set observed-xs)
+                          (set hidden-xs))
+               (set (range n-xs))))
+    (assert (= (count observed-xs)
+               (count observed-ys)))
+    (let [lm (mmul (lmatrix n-xs)
+                   lambda)]
+      {:L           lm
+       :observed-xs observed-xs
+       :hidden-xs   hidden-xs
+       :observed-ys observed-ys})))
 
 (defn solve
   "Return a map containing the approximated value
@@ -720,22 +725,6 @@
            :hidden-ys
            (mmul -1 (inverse l11) l12 observed-ys))))
 
-(defn plot-points
-  "Plots sample points of a solution s"
-  [s]
-  (let [X (concat (:hidden-xs s) (:observed-xs s))
-        Y (concat (:hidden-ys s) (:observed-ys s))]
-    (view
-     (add-points
-      (xy-plot X Y) (:observed-xs s) (:observed-ys s)))))
-
-(defn plot-rand-sample []
-  (-> (make-problem 150 10 30)
-      solve
-      plot-points))
-
-;;;; (plot-rand-sample)
-
 ;;;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 (fact "About `lmatrix`"
@@ -745,8 +734,44 @@
               [ 0.0  0.0 -1.0  2.0 -1.0  0.0]
               [ 0.0  0.0  0.0 -1.0  2.0 -1.0]]))
 
-(fact "About `make-problem`"
-  (make-problem 5 2 10)
+(fact "About `make-problem` and `solve`"
+  (let [problem (make-problem [0 2 4]
+                              [1 3]
+                              [10 12 14]
+                              3)]
+    (-> problem
+        solve)
+    => (assoc problem
+              :hidden-ys [10.482758620689657
+                          15.586206896551724])))
+
+;;;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+(defn plot-points
+  "Plots sample points of a solution s"
+  [s]
+  (let [X (concat (:hidden-xs s) (:observed-xs s))
+        Y (concat (:hidden-ys s) (:observed-ys s))]
+    (view
+     (add-points
+      (xy-plot X Y) (:observed-xs s) (:observed-ys s)))))
+
+;;;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+(defn make-random-problem
+  "Return a random problem setup for a given matrix size, number of
+  observed values and regularization parameter."
+  [n-xs n-observed lambda]
+  (assert (< n-observed n-xs))
+  (let [shuffled-range-n-xs (shuffle (range n-xs))
+        observed-xs         (take n-observed shuffled-range-n-xs)
+        hidden-xs           (drop n-observed shuffled-range-n-xs)
+        observed-ys         (matrix :clatrix
+                                    (repeatedly n-observed rand))]
+    (make-problem observed-xs hidden-xs observed-ys lambda)))
+
+(fact "About `make-random-problem`"
+  (make-random-problem 5 2 10)
   =>
   (just {:L [[-10.0 20.0 -10.0 0.0 0.0 0.0 0.0]
              [0.0 -10.0 20.0 -10.0 0.0 0.0 0.0]
@@ -756,3 +781,10 @@
          :observed-xs (just (repeat 2 integer?))
          :hidden-xs (just (repeat 3 integer?))
          :observed-ys (just (repeat 2 number?))}))
+
+(defn plot-rand-sample []
+  (-> (make-random-problem 150 10 30)
+      solve
+      plot-points))
+
+;;;; (plot-rand-sample)
