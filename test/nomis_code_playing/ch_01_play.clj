@@ -712,18 +712,22 @@
        :observed-ys observed-ys})))
 
 (defn solve
-  "Return a map containing the approximated value
-  y of each hidden point x"
-  [{:keys [L observed-xs hidden-xs observed-ys] :as problem}]
-  (let [nc  (column-count L)
-        nr  (row-count L)
-        L1  (cl/get L (range nr) hidden-xs)
-        L2  (cl/get L (range nr) observed-xs)
-        l11 (mmul (transpose L1) L1)
-        l12 (mmul (transpose L1) L2)]
-    (assoc problem
-           :hidden-ys
-           (mmul -1 (inverse l11) l12 observed-ys))))
+  "Add `:hidden-ys` to `problem`."
+  [problem]
+  (let [{:keys [L observed-xs hidden-xs observed-ys]} problem]
+    (let [nc    (column-count L)
+          nr    (row-count L)
+          L1    (cl/get L (range nr) hidden-xs)
+          L2    (cl/get L (range nr) observed-xs)
+          L1'   (transpose L1)
+          L1'L1 (mmul L1' L1)
+          L1'L2 (mmul L1' L2)]
+      (assoc problem
+             :hidden-ys
+             (mmul -1
+                   (inverse L1'L1)
+                   L1'L2
+                   observed-ys)))))
 
 ;;;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
