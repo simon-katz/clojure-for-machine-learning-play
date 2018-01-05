@@ -782,9 +782,9 @@
          :hidden-xs (just (repeat 3 integer?))
          :observed-ys (just (repeat 2 number?))}))
 
-(defn plot-rand-sample []
+(defn solve-and-plot-random-problem []
   (-> (make-random-problem 150 10 30)
       solve
       plot-points))
 
-;;;; (plot-rand-sample)
+;;;; (solve-and-plot-random-problem)
