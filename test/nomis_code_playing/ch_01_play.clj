@@ -1,12 +1,12 @@
 (ns nomis-code-playing.ch-01-play
-  (:require [clojure.core.matrix :refer :all]
+  (:require [clatrix.core :as cl]
+            [clojure.core.matrix :refer :all]
             [clojure.core.matrix.operators :as M]
-            [incanter.charts :refer [xy-plot add-points]] ; FIXME Get rid of refers
-            [incanter.core :refer [view]] ; FIXME Get rid of refers
-            [midje.sweet :refer :all]
-            [clatrix.core :as cl]
             [clojure.set :as set]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [incanter.charts :as icharts]
+            [incanter.core :as icore]
+            [midje.sweet :refer :all]))
 
 ;;;; ___________________________________________________________________________
 
@@ -752,13 +752,19 @@
 ;;;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 (defn plot-points
-  "Plots sample points of a solution s"
-  [s]
-  (let [X (concat (:hidden-xs s) (:observed-xs s))
+  "Plots points from `solution`."
+  [solution]
+  (let [s solution
+        X (concat (:hidden-xs s) (:observed-xs s))
         Y (concat (:hidden-ys s) (:observed-ys s))]
-    (view
-     (add-points
-      (xy-plot X Y) (:observed-xs s) (:observed-ys s)))))
+    (-> (icharts/xy-plot X Y :legend true)
+        (icharts/add-points (:observed-xs s)
+                            (:observed-ys s)
+                            :series-label "Observed")
+        (icharts/add-points (:hidden-xs s)
+                            (:hidden-ys s)
+                            :series-label "Hidden")
+        icore/view)))
 
 ;;;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -787,8 +793,17 @@
          :observed-ys (just (repeat 2 number?))}))
 
 (defn solve-and-plot-random-problem []
-  (-> (make-random-problem 150 10 30)
+  (-> (make-random-problem 40 6 30)
+      solve
+      plot-points))
+
+(defn solve-and-plot-fixed-problem []
+  (-> (make-problem [0 2 4]
+                    [1 3]
+                    [10 12 14]
+                    3)
       solve
       plot-points))
 
 ;;;; (solve-and-plot-random-problem)
+;;;; (solve-and-plot-fixed-problem)
