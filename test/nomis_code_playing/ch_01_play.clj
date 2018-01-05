@@ -697,39 +697,42 @@
   "Return a map of the problem setup for a
   given matrix size, number of observed values
   and regularization parameter"
-  [n n-observed lambda]
-  (let [i (shuffle (range n))]
-    {:L               (mmul (lmatrix n) lambda)
-     :observed        (take n-observed i)
-     :hidden          (drop n-observed i)
-     :observed-values (matrix :clatrix
-                              (repeatedly n-observed rand))}))
+  [n-xs n-observed lambda]
+  (assert (< n-observed n-xs))
+  (let [i (shuffle (range n-xs))]
+    {:L           (mmul (lmatrix n-xs) lambda)
+     :observed-xs (take n-observed i)
+     :hidden-xs   (drop n-observed i)
+     :observed-ys (matrix :clatrix
+                          (repeatedly n-observed rand))}))
 
 (defn solve
   "Return a map containing the approximated value
   y of each hidden point x"
-  [{:keys [L observed hidden observed-values] :as problem}]
+  [{:keys [L observed-xs hidden-xs observed-ys] :as problem}]
   (let [nc  (column-count L)
         nr  (row-count L)
-        L1  (cl/get L (range nr) hidden)
-        L2  (cl/get L (range nr) observed)
+        L1  (cl/get L (range nr) hidden-xs)
+        L2  (cl/get L (range nr) observed-xs)
         l11 (mmul (transpose L1) L1)
         l12 (mmul (transpose L1) L2)]
     (assoc problem
-           :hidden-values
-           (mmul -1 (inverse l11) l12 observed-values))))
+           :hidden-ys
+           (mmul -1 (inverse l11) l12 observed-ys))))
 
 (defn plot-points
   "Plots sample points of a solution s"
   [s]
-  (let [X (concat (:hidden s) (:observed s))
-        Y (concat (:hidden-values s) (:observed-values s))]
+  (let [X (concat (:hidden-xs s) (:observed-xs s))
+        Y (concat (:hidden-ys s) (:observed-ys s))]
     (view
      (add-points
-      (xy-plot X Y) (:observed s) (:observed-values s)))))
+      (xy-plot X Y) (:observed-xs s) (:observed-ys s)))))
 
 (defn plot-rand-sample []
-  (plot-points (solve (make-problem 150 10 30))))
+  (-> (make-problem 150 10 30)
+      solve
+      plot-points))
 
 ;;;; (plot-rand-sample)
 
@@ -750,6 +753,6 @@
              [0.0 0.0 -10.0 20.0 -10.0 0.0 0.0]
              [0.0 0.0 0.0 -10.0 20.0 -10.0 0.0]
              [0.0 0.0 0.0 0.0 -10.0 20.0 -10.0]]
-         :observed (just (repeat 2 integer?))
-         :hidden (just (repeat 3 integer?))
-         :observed-values (just (repeat 2 number?))}))
+         :observed-xs (just (repeat 2 integer?))
+         :hidden-xs (just (repeat 3 integer?))
+         :observed-ys (just (repeat 2 number?))}))
