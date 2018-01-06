@@ -708,9 +708,9 @@
   (ensure-problem-ok-helper problem-with-lambda)
   (assert (number? (:lambda problem-with-lambda))))
 
-(defn ensure-problem-with-lmatrix-with-lambda-ok [problem-with-lmatrix-with-lambda]
-  (ensure-problem-ok-helper problem-with-lmatrix-with-lambda)
-  (assert (:lmatrix-with-lambda problem-with-lmatrix-with-lambda)))
+(defn ensure-canonical-problem-ok [canonical-problem]
+  (ensure-problem-ok-helper canonical-problem)
+  (assert (:lmatrix-with-lambda canonical-problem)))
 
 (defn problem-with-lambda->lmatrix-with-lambda
   [problem-with-lambda]
@@ -721,7 +721,7 @@
     (mmul (make-lmatrix n-xs)
           lambda)))
 
-(defn problem-with-lambda->problem-with-lmatrix-with-lambda
+(defn problem-with-lambda->canonical-problem
   "Return a problem setup for the given args."
   [problem-with-lambda]
   (ensure-problem-with-lambda-ok problem-with-lambda)
@@ -730,10 +730,10 @@
       (assoc :lmatrix-with-lambda (problem-with-lambda->lmatrix-with-lambda problem-with-lambda))))
 
 (defn solve
-  "Add `:hidden-ys` to `problem-with-lmatrix-with-lambda`."
-  [problem-with-lmatrix-with-lambda]
-  (ensure-problem-with-lmatrix-with-lambda-ok problem-with-lmatrix-with-lambda)
-  (let [{:keys [lmatrix-with-lambda observed-xs hidden-xs observed-ys]} problem-with-lmatrix-with-lambda]
+  "Add `:hidden-ys` to `canonical-problem`."
+  [canonical-problem]
+  (ensure-canonical-problem-ok canonical-problem)
+  (let [{:keys [lmatrix-with-lambda observed-xs hidden-xs observed-ys]} canonical-problem]
     (let [nc    (column-count lmatrix-with-lambda)
           nr    (row-count lmatrix-with-lambda)
           L1    (cl/get lmatrix-with-lambda (range nr) hidden-xs)
@@ -741,7 +741,7 @@
           L1'   (transpose L1)
           L1'L1 (mmul L1' L1)
           L1'L2 (mmul L1' L2)]
-      (assoc problem-with-lmatrix-with-lambda
+      (assoc canonical-problem
              :hidden-ys
              (mmul -1
                    (inverse L1'L1)
@@ -757,12 +757,12 @@
               [ 0.0  0.0 -1.0  2.0 -1.0  0.0]
               [ 0.0  0.0  0.0 -1.0  2.0 -1.0]]))
 
-(fact "About `problem-with-lambda->problem-with-lmatrix-with-lambda` and `solve`"
+(fact "About `problem-with-lambda->canonical-problem` and `solve`"
   (let [problem (-> {:observed-xs [0 2 4]
                      :hidden-xs   [1 3]
                      :observed-ys [10 12 14]
                      :lambda      3}
-                    problem-with-lambda->problem-with-lmatrix-with-lambda)]
+                    problem-with-lambda->canonical-problem)]
     (-> problem
         solve)
     => (assoc problem
@@ -802,7 +802,7 @@
          :hidden-xs   hidden-xs
          :observed-ys observed-ys
          :lambda      lambda}
-        problem-with-lambda->problem-with-lmatrix-with-lambda)))
+        problem-with-lambda->canonical-problem)))
 
 (fact "About `make-random-problem`"
   (make-random-problem 5 2 10)
@@ -826,7 +826,7 @@
        :hidden-xs   [1 3]
        :observed-ys [10 12 14]
        :lambda      3}
-      problem-with-lambda->problem-with-lmatrix-with-lambda
+      problem-with-lambda->canonical-problem
       solve
       plot-points))
 
