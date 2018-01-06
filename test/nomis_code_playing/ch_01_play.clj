@@ -694,26 +694,46 @@
 
 ;;;; This stuff was horrible in the book. I've changed a lot.
 
-(defn make-problem
-  "Return a problem setup for the given args."
-  [{:keys [observed-xs hidden-xs observed-ys lambda] :as problem-with-lambda}]
-  (let [n-xs (+ (count observed-xs)
+(defn ensure-problem-ok-helper [p]
+  (let [{:keys [observed-xs hidden-xs observed-ys lambda]} p
+        n-xs (+ (count observed-xs)
                 (count hidden-xs))]
     (assert (= (set/union (set observed-xs)
                           (set hidden-xs))
                (set (range n-xs))))
     (assert (= (count observed-xs)
-               (count observed-ys)))
-    (let [lm (mmul (make-lmatrix n-xs)
-                   lambda)]
-      (-> problem-with-lambda
-          (dissoc :lambda)
-          (assoc :lmatrix lm)))))
+               (count observed-ys)))))
+
+(defn ensure-problem-with-lambda-ok [problem-with-lambda]
+  (ensure-problem-ok-helper problem-with-lambda)
+  (assert (number? (:lambda problem-with-lambda))))
+
+(defn ensure-problem-with-lmatrix-ok [problem-with-lmatrix]
+  (ensure-problem-ok-helper problem-with-lmatrix)
+  (assert (:lmatrix problem-with-lmatrix)))
+
+(defn problem-with-lambda->lmatrix
+  [problem-with-lambda]
+  (ensure-problem-with-lambda-ok problem-with-lambda)
+  (let [{:keys [observed-xs hidden-xs lambda]} problem-with-lambda
+        n-xs (+ (count observed-xs)
+                (count hidden-xs))]
+    (mmul (make-lmatrix n-xs)
+          lambda)))
+
+(defn problem-with-lambda->problem-with-lmatrix
+  "Return a problem setup for the given args."
+  [problem-with-lambda]
+  (ensure-problem-with-lambda-ok problem-with-lambda)
+  (-> problem-with-lambda
+      (dissoc :lambda)
+      (assoc :lmatrix (problem-with-lambda->lmatrix problem-with-lambda))))
 
 (defn solve
-  "Add `:hidden-ys` to `problem`."
-  [problem]
-  (let [{:keys [lmatrix observed-xs hidden-xs observed-ys]} problem]
+  "Add `:hidden-ys` to `problem-with-lmatrix`."
+  [problem-with-lmatrix]
+  (ensure-problem-with-lmatrix-ok problem-with-lmatrix)
+  (let [{:keys [lmatrix observed-xs hidden-xs observed-ys]} problem-with-lmatrix]
     (let [nc    (column-count lmatrix)
           nr    (row-count lmatrix)
           L1    (cl/get lmatrix (range nr) hidden-xs)
@@ -721,7 +741,7 @@
           L1'   (transpose L1)
           L1'L1 (mmul L1' L1)
           L1'L2 (mmul L1' L2)]
-      (assoc problem
+      (assoc problem-with-lmatrix
              :hidden-ys
              (mmul -1
                    (inverse L1'L1)
@@ -737,11 +757,11 @@
               [ 0.0  0.0 -1.0  2.0 -1.0  0.0]
               [ 0.0  0.0  0.0 -1.0  2.0 -1.0]]))
 
-(fact "About `make-problem` and `solve`"
-  (let [problem (make-problem {:observed-xs [0 2 4]
-                               :hidden-xs   [1 3]
-                               :observed-ys [10 12 14]
-                               :lambda      3})]
+(fact "About `problem-with-lambda->problem-with-lmatrix` and `solve`"
+  (let [problem (problem-with-lambda->problem-with-lmatrix {:observed-xs [0 2 4]
+                                                            :hidden-xs   [1 3]
+                                                            :observed-ys [10 12 14]
+                                                            :lambda      3})]
     (-> problem
         solve)
     => (assoc problem
@@ -777,10 +797,10 @@
         hidden-xs           (drop n-observed shuffled-range-n-xs)
         observed-ys         (matrix :clatrix
                                     (repeatedly n-observed rand))]
-    (make-problem {:observed-xs observed-xs
-                   :hidden-xs   hidden-xs
-                   :observed-ys observed-ys
-                   :lambda      lambda})))
+    (problem-with-lambda->problem-with-lmatrix {:observed-xs observed-xs
+                                                :hidden-xs   hidden-xs
+                                                :observed-ys observed-ys
+                                                :lambda      lambda})))
 
 (fact "About `make-random-problem`"
   (make-random-problem 5 2 10)
@@ -800,12 +820,12 @@
       plot-points))
 
 (defn solve-and-plot-fixed-problem []
-  (-> (make-problem {:observed-xs [0 2 4]
-                     :hidden-xs   [1 3]
-                     :observed-ys [10 12 14]
-                     :lambda      3})
+  (-> (problem-with-lambda->problem-with-lmatrix {:observed-xs [0 2 4]
+                                                  :hidden-xs   [1 3]
+                                                  :observed-ys [10 12 14]
+                                                  :lambda      3})
       solve
       plot-points))
 
-;;;; (solve-and-plot-random-problem)
 ;;;; (solve-and-plot-fixed-problem)
+;;;; (solve-and-plot-random-problem)
