@@ -682,7 +682,7 @@
                      (- j i)
                      0))))
 
-(defn lmatrix [n] ; :sk-improved-version:
+(defn make-lmatrix [n] ; :sk-improved-version:
   (compute-matrix :clatrix
                   [n (+ n 2)]
                   (fn [i j]
@@ -696,7 +696,7 @@
 
 (defn make-problem
   "Return a problem setup for the given args."
-  [observed-xs hidden-xs observed-ys lambda]
+  [{:keys [observed-xs hidden-xs observed-ys lambda] :as problem-with-lambda}]
   (let [n-xs (+ (count observed-xs)
                 (count hidden-xs))]
     (assert (= (set/union (set observed-xs)
@@ -704,21 +704,20 @@
                (set (range n-xs))))
     (assert (= (count observed-xs)
                (count observed-ys)))
-    (let [lm (mmul (lmatrix n-xs)
+    (let [lm (mmul (make-lmatrix n-xs)
                    lambda)]
-      {:L           lm
-       :observed-xs observed-xs
-       :hidden-xs   hidden-xs
-       :observed-ys observed-ys})))
+      (-> problem-with-lambda
+          (dissoc :lambda)
+          (assoc :lmatrix lm)))))
 
 (defn solve
   "Add `:hidden-ys` to `problem`."
   [problem]
-  (let [{:keys [L observed-xs hidden-xs observed-ys]} problem]
-    (let [nc    (column-count L)
-          nr    (row-count L)
-          L1    (cl/get L (range nr) hidden-xs)
-          L2    (cl/get L (range nr) observed-xs)
+  (let [{:keys [lmatrix observed-xs hidden-xs observed-ys]} problem]
+    (let [nc    (column-count lmatrix)
+          nr    (row-count lmatrix)
+          L1    (cl/get lmatrix (range nr) hidden-xs)
+          L2    (cl/get lmatrix (range nr) observed-xs)
           L1'   (transpose L1)
           L1'L1 (mmul L1' L1)
           L1'L2 (mmul L1' L2)]
@@ -731,18 +730,18 @@
 
 ;;;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-(fact "About `lmatrix`"
-  (lmatrix 4)
+(fact "About `make-lmatrix`"
+  (make-lmatrix 4)
   => (matrix [[-1.0  2.0 -1.0  0.0  0.0  0.0]
               [ 0.0 -1.0  2.0 -1.0  0.0  0.0]
               [ 0.0  0.0 -1.0  2.0 -1.0  0.0]
               [ 0.0  0.0  0.0 -1.0  2.0 -1.0]]))
 
 (fact "About `make-problem` and `solve`"
-  (let [problem (make-problem [0 2 4]
-                              [1 3]
-                              [10 12 14]
-                              3)]
+  (let [problem (make-problem {:observed-xs [0 2 4]
+                               :hidden-xs   [1 3]
+                               :observed-ys [10 12 14]
+                               :lambda      3})]
     (-> problem
         solve)
     => (assoc problem
@@ -778,16 +777,19 @@
         hidden-xs           (drop n-observed shuffled-range-n-xs)
         observed-ys         (matrix :clatrix
                                     (repeatedly n-observed rand))]
-    (make-problem observed-xs hidden-xs observed-ys lambda)))
+    (make-problem {:observed-xs observed-xs
+                   :hidden-xs   hidden-xs
+                   :observed-ys observed-ys
+                   :lambda      lambda})))
 
 (fact "About `make-random-problem`"
   (make-random-problem 5 2 10)
   =>
-  (just {:L [[-10.0 20.0 -10.0 0.0 0.0 0.0 0.0]
-             [0.0 -10.0 20.0 -10.0 0.0 0.0 0.0]
-             [0.0 0.0 -10.0 20.0 -10.0 0.0 0.0]
-             [0.0 0.0 0.0 -10.0 20.0 -10.0 0.0]
-             [0.0 0.0 0.0 0.0 -10.0 20.0 -10.0]]
+  (just {:lmatrix [[-10.0 20.0 -10.0 0.0 0.0 0.0 0.0]
+                   [0.0 -10.0 20.0 -10.0 0.0 0.0 0.0]
+                   [0.0 0.0 -10.0 20.0 -10.0 0.0 0.0]
+                   [0.0 0.0 0.0 -10.0 20.0 -10.0 0.0]
+                   [0.0 0.0 0.0 0.0 -10.0 20.0 -10.0]]
          :observed-xs (just (repeat 2 integer?))
          :hidden-xs (just (repeat 3 integer?))
          :observed-ys (just (repeat 2 number?))}))
@@ -798,10 +800,10 @@
       plot-points))
 
 (defn solve-and-plot-fixed-problem []
-  (-> (make-problem [0 2 4]
-                    [1 3]
-                    [10 12 14]
-                    3)
+  (-> (make-problem {:observed-xs [0 2 4]
+                     :hidden-xs   [1 3]
+                     :observed-ys [10 12 14]
+                     :lambda      3})
       solve
       plot-points))
 
