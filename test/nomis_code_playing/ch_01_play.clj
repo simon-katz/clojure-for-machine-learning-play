@@ -727,7 +727,8 @@
   (ensure-problem-with-lambda-ok problem-with-lambda)
   (-> problem-with-lambda
       (dissoc :lambda)
-      (assoc :lmatrix-with-lambda (problem-with-lambda->lmatrix-with-lambda problem-with-lambda))))
+      (assoc :lmatrix-with-lambda
+             (problem-with-lambda->lmatrix-with-lambda problem-with-lambda))))
 
 (defn solve
   "Add `:hidden-ys` to `canonical-problem`."
